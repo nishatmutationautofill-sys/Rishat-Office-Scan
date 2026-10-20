@@ -20,9 +20,6 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import com.rishatoffice.scan.databinding.ActivityMainBinding
 import com.rishatoffice.scan.databinding.ItemDocBinding
 import java.io.File
@@ -37,14 +34,6 @@ class MainActivity : AppCompatActivity() {
 
     private val docsDir: File by lazy { File(filesDir, "docs").apply { mkdirs() } }
 
-    private val scanLauncher =
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { res ->
-            if (res.resultCode == Activity.RESULT_OK) {
-                val result = GmsDocumentScanningResult.fromActivityResultIntent(res.data)
-                if (result != null) saveResult(result)
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -52,42 +41,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.list.layoutManager = LinearLayoutManager(this)
         binding.list.adapter = adapter
-        binding.fab.setOnClickListener { startScan() }
+        binding.fab.setOnClickListener { startActivity(Intent(this, ScannerActivity::class.java)) }
         refresh()
     }
 
-    private fun startScan() {
-        val options = GmsDocumentScannerOptions.Builder()
-            .setGalleryImportAllowed(true)
-            .setPageLimit(50)
-            .setResultFormats(
-                GmsDocumentScannerOptions.RESULT_FORMAT_JPEG,
-                GmsDocumentScannerOptions.RESULT_FORMAT_PDF
-            )
-            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-            .build()
-
-        GmsDocumentScanning.getClient(options)
-            .getStartScanIntent(this)
-            .addOnSuccessListener { sender ->
-                scanLauncher.launch(IntentSenderRequest.Builder(sender).build())
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, R.string.scan_failed, Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun saveResult(result: GmsDocumentScanningResult) {
-        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val base = "Scan_$stamp"
-        try {
-            result.pdf?.uri?.let { copyUri(it, File(docsDir, "$base.pdf")) }
-            result.pages?.firstOrNull()?.imageUri?.let { copyUri(it, File(docsDir, "$base.jpg")) }
-            Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(this, e.message ?: "Error", Toast.LENGTH_LONG).show()
-        }
-        refresh()
+    override fun onResume() {
+        super.onResume()
+        if (::binding.isInitialized) refresh()
     }
 
     private fun copyUri(src: Uri, dst: File) {
