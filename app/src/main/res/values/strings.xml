@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RishatOffice Scan</string>
+    <string name="scan">স্ক্যান করুন</string>
+    <string name="empty">কোনো ডকুমেন্ট নেই।\nনিচের বাটনে চাপ দিয়ে স্ক্যান শুরু করুন।</string>
+    <string name="share">শেয়ার</string>
+    <string name="rename">নাম পরিবর্তন</string>
+    <string name="delete">ডিলিট</string>
+    <string name="cancel">বাতিল</string>
+    <string name="ok">ঠিক আছে</string>
+    <string name="delete_confirm">এই ডকুমেন্টটি ডিলিট করবেন?</string>
+    <string name="no_pdf_viewer">PDF দেখার কোনো অ্যাপ পাওয়া যায়নি</string>
+    <string name="scan_failed">স্ক্যানার চালু করা যায়নি</string>
+    <string name="saved">ডকুমেন্ট সেভ হয়েছে</string>
+</resources>
